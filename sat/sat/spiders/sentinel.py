@@ -11,20 +11,33 @@ from scrapy.loader.processors import TakeFirst
 
 from scrapy.loader import ItemLoader
 from sat.items import SatItem
+import urllib
+
 
 domain = 'scihub.esa.int'
-polygon = "POLYGON((-4.53 29.85,26.75 29.85,26.75 46.80,-4.53 46.80,-4.53 29.85))"
-
+POLYGON = "POLYGON((2 51,4 51,4 55,2 54,2 51))"
+BEGIN_POSITION = 'NOW-14DAYS TO NOW'
+END_POSITION = 'NOW-14DAYS TO NOW'
 
 class SentinelSpider(XMLFeedSpider):
-    def __init__(self, settings, polygon=polygon, *args, **kwargs):
+    def __init__(self, settings,
+                 polygon=POLYGON,
+                 begin_position=BEGIN_POSITION,
+                 end_position=END_POSITION,
+                 *args, **kwargs):
         """construct with settings"""
         self.settings = settings
         self.logger.info("polygon %s", polygon)
         self.start_urls = [
             'https://' + domain +
-            '/dhus/api/search?q=footprint:' +
-            '"Intersects({polygon})"'.format(polygon=polygon)
+            '/dhus/api/search?' +
+            urllib.urlencode({
+                "q": 'footprint:"Intersects({polygon})"'.format(polygon=polygon) +
+                ' AND ' +
+                'beginPosition:[{0}]'.format(begin_position) +
+                ' AND ' +
+                'endPosition:[{0}]'.format(end_position)
+            })
         ]
 
     @classmethod
@@ -39,8 +52,9 @@ class SentinelSpider(XMLFeedSpider):
     allowed_domains = [domain]
 
     rules = [
-        # Extract links matching 'category.php' (but not matching 'subsection.php')
+        # Extract links matching 'dhus/api/search'
         # and follow links from them (since no callback means follow=True by default).
+        # todo fix restrict_xpaths to allow for non-html links
         Rule(
             LxmlLinkExtractor(
                 allow="/dhus/api/search",

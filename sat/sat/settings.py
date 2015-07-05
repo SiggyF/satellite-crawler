@@ -65,9 +65,10 @@ DOWNLOADER_MIDDLEWARE = [
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'sat.pipelines.SomePipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'sat.pipelines.DuplicatePipeline': 300,
+    'sat.pipelines.RabbitMQPipeline': 800
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
