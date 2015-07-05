@@ -45,14 +45,29 @@ class RabbitMQPipeline(object):
             parameters=parameters
         )
         channel = connection.channel()
-        channel.queue_declare('crisis_crawl')
+        # we're publishing to two channels, the download request
+        # so that a download queue can pick it up
+        channel.queue_declare('crisis_download_requests')
+        # and a fanout exchange to notify listeners that we've crawled something
+        channel.exchange_declare(
+            'crisis_crawl',
+            type='fanout'
+        )
         self.channel = channel
+
     def process_item(self, item, spider):
         self.logger.info('sending message')
         serialized = json.dumps(dict(item))
+        # send to the work queue
         self.channel.basic_publish(
             exchange='',
-            routing_key='crisis_crawl',
+            routing_key='crisis_download_requests',
+            body='%s' % (serialized,)
+        )
+        # and to the channel
+        self.channel.basic_publish(
+            exchange='crisis_crawl',
+            routing_key='',
             body='%s' % (serialized,)
         )
         return item

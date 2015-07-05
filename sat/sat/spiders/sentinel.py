@@ -15,12 +15,14 @@ import urllib
 
 
 domain = 'scihub.esa.int'
+
 POLYGON = "POLYGON((2 51,4 51,4 55,2 54,2 51))"
 BEGIN_POSITION = 'NOW-14DAYS TO NOW'
 END_POSITION = 'NOW-14DAYS TO NOW'
-
+ID = "REQUESTID"
 class SentinelSpider(XMLFeedSpider):
     def __init__(self, settings,
+                 request_id=ID,
                  polygon=POLYGON,
                  begin_position=BEGIN_POSITION,
                  end_position=END_POSITION,
@@ -28,6 +30,7 @@ class SentinelSpider(XMLFeedSpider):
         """construct with settings"""
         self.settings = settings
         self.logger.info("polygon %s", polygon)
+        self.request_id = request_id
         self.start_urls = [
             'https://' + domain +
             '/dhus/api/search?' +
@@ -111,6 +114,7 @@ class SentinelSpider(XMLFeedSpider):
         l.add_xpath('footprint', "atom:str[@name='footprint']/text()")
         l.add_xpath('id', 'atom:id/text()')
         l.add_xpath('identifier', "atom:str[@name='identifier']/text()")
+        l.add_value('requestId', self.request_id)
         i = l.load_item()
         return i
 

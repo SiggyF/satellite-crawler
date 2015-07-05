@@ -9,11 +9,12 @@ import scrapy
 
 
 class SatItem(scrapy.Item):
-    # define the fields for your item here like:
+    """Sentinel Item in JSON naming convention"""
     metadata = scrapy.Field()
     download = scrapy.Field()
     footprint = scrapy.Field()
     id = scrapy.Field()
     identifier = scrapy.Field()
+    requestId = scrapy.Field()
 
 
