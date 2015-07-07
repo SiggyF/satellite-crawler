@@ -20,26 +20,42 @@ POLYGON = "POLYGON((2 51,4 51,4 55,2 54,2 51))"
 BEGIN_POSITION = 'NOW-14DAYS TO NOW'
 END_POSITION = 'NOW-14DAYS TO NOW'
 ID = "REQUESTID"
+
 class SentinelSpider(XMLFeedSpider):
     def __init__(self, settings,
                  request_id=ID,
-                 polygon=POLYGON,
-                 begin_position=BEGIN_POSITION,
-                 end_position=END_POSITION,
+                 polygon=None,
+                 begin_position=None,
+                 end_position=None,
                  *args, **kwargs):
         """construct with settings"""
         self.settings = settings
         self.logger.info("polygon %s", polygon)
         self.request_id = request_id
+
+        # build the query
+        query_parts = []
+        if polygon:
+            query_parts.append(
+                'footprint:"Intersects({polygon})"'.format(
+                polygon=polygon
+                )
+            )
+        if begin_position:
+            query_parts.append(
+                'beginPosition:[{0}]'.format(begin_position)
+            )
+        if end_position:
+            query_parts.append(
+                'endPosition:[{0}]'.format(end_position)
+            )
+        # build the start url
+        query = " AND ".join(query_parts)
         self.start_urls = [
             'https://' + domain +
             '/dhus/api/search?' +
             urllib.urlencode({
-                "q": 'footprint:"Intersects({polygon})"'.format(polygon=polygon) +
-                ' AND ' +
-                'beginPosition:[{0}]'.format(begin_position) +
-                ' AND ' +
-                'endPosition:[{0}]'.format(end_position)
+                "q": query
             })
         ]
 
