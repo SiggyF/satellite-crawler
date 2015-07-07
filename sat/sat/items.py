@@ -13,6 +13,7 @@ class SatItem(scrapy.Item):
     metadata = scrapy.Field()
     download = scrapy.Field()
     footprint = scrapy.Field()
+    icon = scrapy.Field()
     id = scrapy.Field()
     identifier = scrapy.Field()
     requestId = scrapy.Field()

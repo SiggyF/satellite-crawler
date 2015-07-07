@@ -54,8 +54,8 @@ class SentinelSpider(XMLFeedSpider):
         self.start_urls = [
             'https://' + domain +
             '/dhus/api/search?' +
-            urllib.urlencode({
-                "q": query
+             urllib.urlencode({
+                "q": query if query_parts else "*"
             })
         ]
 
@@ -126,6 +126,7 @@ class SentinelSpider(XMLFeedSpider):
         l = ItemLoader(SatItem(), selector=selector, response=response)
         l.default_output_processor = TakeFirst()
         l.add_xpath("metadata", "atom:link[@rel='alternative']/@href")
+        l.add_xpath("icon", "atom:link[@rel='icon']/@href")
         l.add_xpath("download", "atom:link/@href")
         l.add_xpath('footprint', "atom:str[@name='footprint']/text()")
         l.add_xpath('id', 'atom:id/text()')
