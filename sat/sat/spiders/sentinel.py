@@ -17,21 +17,34 @@ import urllib
 domain = 'scihub.esa.int'
 
 POLYGON = "POLYGON((2 51,4 51,4 55,2 54,2 51))"
-BEGIN_POSITION = 'NOW-14DAYS TO NOW'
-END_POSITION = 'NOW-14DAYS TO NOW'
+BEGIN_DATE = 'NOW-14DAYS'
+END_DATE = 'NOW'
 ID = "REQUESTID"
+
 
 class SentinelSpider(XMLFeedSpider):
     def __init__(self, settings,
                  request_id=ID,
                  polygon=None,
-                 begin_position=None,
-                 end_position=None,
+                 begin_date=None,
+                 end_date=None,
                  *args, **kwargs):
         """construct with settings"""
         self.settings = settings
         self.logger.info("polygon %s", polygon)
         self.request_id = request_id
+
+        # last 2 weeks by default
+        if begin_date is None and end_date is None:
+            # from globals
+            begin_position = "%s TO %s" % (BEGIN_DATE, END_DATE)
+            end_position = "%s TO %s" % (BEGIN_DATE, END_DATE)
+        else:
+            # arguments
+            begin_position = "%s TO %s" % (begin_date, end_date)
+            end_position = "%s TO %s" % (begin_date, end_date)
+
+
 
         # build the query
         query_parts = []
